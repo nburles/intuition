@@ -221,11 +221,9 @@ def parse_datagram(datagram):
 	if xml.tag == 'electricity':
 		msg = OwlElectricity(xml)
 	elif xml.tag == 'heating':
-		# note: requires network owl 2.2
-		# TODO: implement network owl 2.3 support
 		msg = OwlHeating(xml)
 	else:
-		raise NotImplementedError, 'Message type %r not implemented.' % msg.tag
+		raise NotImplementedError, 'Message type %r not implemented.' % xml.tag
 
 	return msg
 
