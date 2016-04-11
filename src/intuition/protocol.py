@@ -37,20 +37,6 @@ class OwlBaseMessage(object):
 		"""
 		return self._mac
 
-	@property
-	def rssi(self):
-		"""
-		Recieve signal strength (dBm).
-		"""
-		return self._rssi
-
-	@property
-	def lqi(self):
-		"""
-		Link quality, with 0 being best.
-		"""
-		return self._lqi
-
 
 class OwlChannel(object):
 	# structure for storing data about electricity channels
@@ -78,9 +64,12 @@ class OwlChannel(object):
 			self.daily_wh
 		)
 
-class OwlTemperature(object):
-	def __init__(self, zone, current_temp, required_temp):
+class OwlZone(object):
+	def __init__(self, zone, rssi, lqi, battery_level, current_temp, required_temp):
 		self._zone = zone
+		self._rssi = rssi
+		self._lqi = lqi
+		self._battery = battery_level
 		self._current_temp = Decimal(current_temp)
 		self._required_temp = Decimal(required_temp)
 
@@ -106,43 +95,44 @@ class OwlTemperature(object):
 		documentation, but appear to be degrees Celcius.
 		"""
 		return self._required_temp
-		
+
+	@property
+	def battery(self):
+		return self._battery
+
+	@property
+	def rssi(self):
+		return self._rssi
+
+	@property
+	def lqi(self):
+		return self._lqi
+
 	def __str__(self):
-		return '<OwlTemperature: id=%s, current=%s C, required=%s C>' % (
+		return '<OwlZone: id=%s, rssi=%s, lqi=%s, battery_level=%s, current=%s C, required=%s C>' % (
 			self.zone_id,
+		        self.rssi,
+		        self.lqi,
+		        self.battery,
 			self.current_temp,
 			self.required_temp
 		)
-	
 
 
 class OwlHeating(OwlBaseMessage):
 	def __init__(self, datagram):
-		# TODO: support Network Owl 2.3
 		assert (datagram.tag == 'heating'), ('OwlHeating XML must have `heating` root node (got %r).' % datagram.tag)
-		
 		self._mac = datagram.attrib['id']
+		self._zones = []
+                for zone in datagram.zones.getchildren():
+                    zone_id = zone.attrib['id']
+                    rssi = zone.signal.attrib['rssi']
+                    lqi = zone.signal.attrib['lqi']
+                    battery = zone.battery.attrib['level']
+                    current_temp = zone.temperature.current.text
+                    required_temp = zone.temperature.required.text
+                    self._zones.append(OwlZone(zone_id, rssi, lqi, battery, current_temp, required_temp))
 
-		# read signal information for the sensor's 433MHz link
-		self._rssi = Decimal(datagram.signal[0].attrib['rssi'])
-		self._lqi = Decimal(datagram.signal[0].attrib['lqi'])
-
-		# read battery information from the sensor.
-		self._battery_mv = Decimal(datagram.battery[0].attrib['level'][:-2])
-		
-		self._zones = {}
-		for temp in datagram.temperature:
-			assert temp.attrib['zone'] not in self._zones
-			self._zones[temp.attrib['zone']] = OwlTemperature(temp.attrib['zone'], temp.current[0].text, temp.required[0].text)
-
-
-	@property
-	def battery_mv(self):
-		"""
-		Voltage level of the battery in the sensor, in millivolts.
-		"""
-		return self._battery_mv
-		
 	@property
 	def zones(self):
 		"""
@@ -151,12 +141,8 @@ class OwlHeating(OwlBaseMessage):
 		return self._zones
 
 	def __str__(self):
-		return '<OwlHeating: rssi=%s, lqi=%s, battery=%s mV, zones=%s>' % (
-			self.rssi,
-			self.lqi,
-			self.battery_mv,
-			', '.join((str(x) for x in self.zones.itervalues()))
-		)
+		return '<OwlHeating: zones=%s>' % (', '.join((str(x) for x in self.zones)))
+
 
 class OwlElectricity(OwlBaseMessage):
 	def __init__(self, datagram):
@@ -202,6 +188,20 @@ class OwlElectricity(OwlBaseMessage):
 	@property
 	def channels(self):
 		return self._channels
+
+	@property
+	def rssi(self):
+		"""
+		Recieve signal strength (dBm).
+		"""
+		return self._rssi
+
+	@property
+	def lqi(self):
+		"""
+		Link quality, with 0 being best.
+		"""
+		return self._lqi
 
 	def __str__(self):
 		return '<OwlElectricity: rssi=%s, lqi=%s, battery=%s%%, channels=%s>' % (
