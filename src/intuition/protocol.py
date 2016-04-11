@@ -119,6 +119,27 @@ class OwlZone(object):
 		)
 
 
+class OwlHotWaterZone(OwlZone):
+	def __init__(self, zone, rssi, lqi, battery_level, current_temp, required_temp, ambient_temp):
+	    super(OwlHotWaterZone, self).__init__(zone, rssi, lqi, battery_level, current_temp, required_temp)
+	    self._ambient_temp = ambient_temp
+
+	@property
+	def ambient_temp(self):
+	    return self._ambient_temp
+
+	def __str__(self):
+		return '<OwlHotWaterZone: id=%s, rssi=%s, lqi=%s, battery_level=%s, current=%s C, required=%s C. ambient=%s C>' % (
+			self.zone_id,
+		        self.rssi,
+		        self.lqi,
+		        self.battery,
+			self.current_temp,
+			self.required_temp,
+		        self.ambient_temp
+		)
+
+
 class OwlHeating(OwlBaseMessage):
 	def __init__(self, datagram):
 		assert (datagram.tag == 'heating'), ('OwlHeating XML must have `heating` root node (got %r).' % datagram.tag)
@@ -142,6 +163,29 @@ class OwlHeating(OwlBaseMessage):
 
 	def __str__(self):
 		return '<OwlHeating: zones=%s>' % (', '.join((str(x) for x in self.zones)))
+
+
+class OwlHotWater(OwlBaseMessage):
+	def __init__(self, datagram):
+		assert (datagram.tag == 'hot_water'), ('OwlHotWater XML must have `hot_water` root node (got %r).' % datagram.tag)
+		self._mac = datagram.attrib['id']
+		self._zones = []
+                for zone in datagram.zones.getchildren():
+                    zone_id = zone.attrib['id']
+                    rssi = zone.signal.attrib['rssi']
+                    lqi = zone.signal.attrib['lqi']
+                    battery = zone.battery.attrib['level']
+                    current_temp = zone.temperature.current.text
+                    required_temp = zone.temperature.required.text
+                    ambient_temp = zone.temperature.ambient.text
+                    self._zones.append(OwlHotWaterZone(zone_id, rssi, lqi, battery, current_temp, required_temp, ambient_temp))
+
+	@property
+	def zones(self):
+		return self._zones
+
+	def __str__(self):
+		return '<OwlHotWater: zones=%s>' % (', '.join((str(x) for x in self.zones)))
 
 
 class OwlElectricity(OwlBaseMessage):
@@ -222,6 +266,8 @@ def parse_datagram(datagram):
 		msg = OwlElectricity(xml)
 	elif xml.tag == 'heating':
 		msg = OwlHeating(xml)
+	elif xml.tag == 'hot_water':
+		msg = OwlHotWater(xml)
 	else:
 		raise NotImplementedError, 'Message type %r not implemented.' % xml.tag
 
