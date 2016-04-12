@@ -256,6 +256,28 @@ class OwlElectricity(OwlBaseMessage):
 		)
 
 
+class OwlWeather(OwlBaseMessage):
+	def __init__(self, datagram):
+		assert (datagram.tag == 'weather'), ('OwlWeather XML must have `weather` root node (got %r).' % datagram.tag)
+		self._mac = datagram.attrib['id']
+		self._temperature = datagram.temperature.text
+		self._text = datagram.find('text').text
+
+	@property
+        def temperature(self):
+                return self._temperature
+
+	@property
+        def text(self):
+                return self._text
+
+        def __str__(self):
+                return '<OwlWeather: temperature=%s C, text=%s>' % (
+                        self.temperature,
+                        self.text
+                )
+
+
 def parse_datagram(datagram):
 	"""
 	Parses a Network Owl datagram.
@@ -268,6 +290,8 @@ def parse_datagram(datagram):
 		msg = OwlHeating(xml)
 	elif xml.tag == 'hot_water':
 		msg = OwlHotWater(xml)
+	elif xml.tag == 'weather':
+		msg = OwlWeather(xml)
 	else:
 		raise NotImplementedError, 'Message type %r not implemented.' % xml.tag
 
