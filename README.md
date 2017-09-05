@@ -1,4 +1,4 @@
-# intuition #
+# intuition [![Build Status](https://travis-ci.org/shortbloke/intuition.svg?branch=dev)](https://travis-ci.org/shortbloke/intuition) 
 
 Python/Twisted library for receiving multicast UDP (local) messages from the Network Owl (OWL Intution) home energy monitor.
 
