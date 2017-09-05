@@ -8,8 +8,8 @@ python:
 
 install:
     - pip install nose coveralls
-before_script:
-    - cd src
+    - pip install -e .
+
 script:
     - nosetests --with-coverage --cover-package=intuition -v
 
