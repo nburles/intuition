@@ -23,18 +23,20 @@ from twisted.internet import reactor
 import rrdtool
 from .protocol import OwlIntuitionProtocol, MCAST_PORT, OwlElectricity
 
+
 class RrdOwlProtocol(OwlIntuitionProtocol):
     def __init__(self, src, rrd, *args, **kwargs):
         self.src = src
         self.rrd = rrd
         OwlIntuitionProtocol.__init__(self, *args, **kwargs)
 
+    # pylint: disable=invalid-name, unused-variable
     def owlReceived(self, address, msg):
         ip, port = address
 
         if ip != self.src:
             # drop out, bad source
-            raise(ValueError, 'Source address does not match for packet')
+            raise ValueError('Source address does not match for packet')
 
         assert isinstance(msg, OwlElectricity), (
             'This only supports electricity messages.')
@@ -46,21 +48,24 @@ class RrdOwlProtocol(OwlIntuitionProtocol):
         chan_names = msg.channels.keys()
         chan_names.sort()
 
-        o = ['N']
+        ordered_channels = ['N']
         for channel in chan_names:
-            o.append(str(msg.channels[channel].current_w.to_integral_value()))
-            o.append(str(msg.channels[channel].daily_wh.to_integral_value()))
+            ordered_channels.append(
+                str(msg.channels[channel].current_w.to_integral_value()))
+            ordered_channels.append(
+                str(msg.channels[channel].daily_wh.to_integral_value()))
 
-        o = ':'.join(o)
+        ordered_channels = ':'.join(ordered_channels)
 
         # update database
-        res = rrdtool.update(self.rrd, o)
+        res = rrdtool.update(self.rrd, ordered_channels)
 
         if res:
             print(rrdtool.error())
 
 
 if __name__ == '__main__':
+    # pylint: disable=invalid-name
     parser = ArgumentParser()
 
     parser.add_argument('-s', '--src', dest='src',
@@ -72,11 +77,12 @@ if __name__ == '__main__':
 
     parser.add_argument('-r', '--rrd', dest='rrd', help='Path to RRD database')
 
+    # pylint: disable=invalid-name
     options = parser.parse_args()
-
+    # pylint: disable=invalid-name
     protocol = RrdOwlProtocol(src=options.src,
                               rrd=options.rrd,
                               iface=options.iface)
-
+    # pylint: disable=no-member
     reactor.listenMulticast(MCAST_PORT, protocol, listenMultiple=True)
     reactor.run()

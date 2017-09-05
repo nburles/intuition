@@ -21,6 +21,8 @@ along with this library.  If not, see <http://www.gnu.org/licenses/>.
 
 """
 
+# pylint: disable=R0903
+
 from warnings import warn
 from decimal import Decimal
 from twisted.internet.protocol import DatagramProtocol
@@ -31,6 +33,7 @@ MCAST_ADDR = '224.192.32.19'
 MCAST_PORT = 22600
 
 
+# pylint: disable=no-member
 class OwlBaseMessage(object):
     @property
     def mac(self):
@@ -69,6 +72,7 @@ class OwlChannel(object):
         )
 
 
+# pylint: disable=too-many-arguments
 class OwlZone(object):
     def __init__(self, zone, rssi, lqi, battery_level, current_temp,
                  required_temp):
@@ -126,6 +130,7 @@ class OwlZone(object):
                      )
 
 
+# pylint: disable=too-many-arguments
 class OwlHotWaterZone(OwlZone):
     def __init__(self, zone, rssi, lqi, battery_level, current_temp,
                  required_temp, ambient_temp, humidity):
@@ -326,11 +331,11 @@ class OwlSolar(OwlBaseMessage):
                                     datagram.current.exporting.text,
                                     datagram.day.exported.text)
 
-        def __str__(self):
-            return '<OwlSolar: generating=%s, exporting=%s>' % (
-                self.generating,
-                self.exporting
-            )
+    def __str__(self):
+        return '<OwlSolar: generating=%s, exporting=%s>' % (
+            self.generating,
+            self.exporting
+        )
 
 
 def parse_datagram(datagram):
@@ -346,21 +351,20 @@ def parse_datagram(datagram):
                 msg = OwlHeating(xml)
         else:
             msg = 'Heating version v2.2 and below is not supported.'
-            raise(NotImplementedError, msg)
+            raise NotImplementedError(msg)
     elif xml.tag == 'hot_water':
         if 'ver' in xml.attrib:
             if xml.attrib['ver'] == '2':
                 msg = OwlHotWater(xml)
         else:
             msg = 'Hot Water version v2.2 and below is not supported.'
-            raise(NotImplementedError, msg)
+            raise NotImplementedError(msg)
     elif xml.tag == 'weather':
         msg = OwlWeather(xml)
     elif xml.tag == 'solar':
         msg = OwlSolar(xml)
     else:
-        raise(NotImplementedError, 'Message type %r not implemented.'
-              % xml.tag)
+        raise NotImplementedError('Message type %r not implemented.' % xml.tag)
 
     return msg
 
@@ -379,28 +383,31 @@ class OwlIntuitionProtocol(DatagramProtocol):
     def startProtocol(self):
         self.transport.joinGroup(MCAST_ADDR, self.iface)
 
+    # pylint: disable=arguments-differ
     def datagramReceived(self, datagram, address):
         msg = parse_datagram(datagram)
         self.owlReceived(address, msg)
 
+    # pylint: disable=invalid-name, no-self-use
     def owlReceived(self, address, msg):
         # for the test program
         print('%s: %s' % (address, msg))
 
 
 if __name__ == '__main__':  # pragma: no cover
-    """
-    Simple test program!
-    """
+    # Simple test program!
+    # pylint: disable=ungrouped-imports
     from twisted.internet import reactor
     from argparse import ArgumentParser
+    # pylint: disable=invalid-name
     parser = ArgumentParser()
     parser.add_argument('-i', '--iface',
                         dest='iface', default='',
                         help='Network interface to use for getting data.')
 
+    # pylint: disable=invalid-name
     options = parser.parse_args()
-
+    # pylint: disable=invalid-name
     protocol = OwlIntuitionProtocol(iface=options.iface)
     reactor.listenMulticast(MCAST_PORT, protocol, listenMultiple=True)
     reactor.run()
