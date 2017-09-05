@@ -2,14 +2,15 @@ language:
     python
 python:
     - "2.7"
+    - "3.4.2"
     - "3.5"
+    - "3.6"
 
 install:
     - pip install python-coveralls
     - pip install nose
 
 script:
-    cd src
     nosetests --with-coverage --cover-package=intuition
 
 after_success:
