@@ -10,8 +10,7 @@ install:
     - pip install nose coveralls
 
 script:
-    cd src
-    nosetests --with-coverage --cover-package=intuition -v
+    - cd src && nosetests --with-coverage --cover-package=intuition -v
 
 after_success:
-    coveralls
+    - coveralls
