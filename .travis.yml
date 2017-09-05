@@ -8,8 +8,8 @@ python:
 
 install:
     - pip install nose coveralls
-    - pip install .
-
+before_script:
+    - export PYTHONPATH=$PYTHONPATH:$(pwd)
 script:
     - nosetests --with-coverage --cover-package=intuition -v
 
