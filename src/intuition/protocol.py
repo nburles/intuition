@@ -1,5 +1,6 @@
 """
 intuition/protocol.py - Twisted protocol library for OWL Intuition's multicast UDP energy monitoring protocol.
+Copyright 2017 Martin Rowan
 Copyright 2013-2014 Michael Farrell <micolous+git@gmail.com>
 Copyright 2013 Johan van den Dorpe <johan.vandendorpe@gmail.com>
 
