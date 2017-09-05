@@ -20,10 +20,7 @@ along with this library.  If not, see <http://www.gnu.org/licenses/>.
 """
 from __future__ import absolute_import
 from decimal import Decimal
-try:
-    from protocol import parse_datagram, OwlElectricity, OwlHeating, OwlChannel, OwlSolar, OwlWeather, OwlHotWater
-except ModuleNotFoundError:
-    from .protocol import parse_datagram, OwlElectricity, OwlHeating, OwlChannel, OwlSolar, OwlWeather, OwlHotWater
+from .protocol import parse_datagram, OwlElectricity, OwlHeating, OwlChannel, OwlSolar, OwlWeather, OwlHotWater
 
 def test_electricity():
     packet = """\
