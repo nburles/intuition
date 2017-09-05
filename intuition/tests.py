@@ -22,6 +22,7 @@ from __future__ import absolute_import
 from decimal import Decimal
 from .protocol import parse_datagram, OwlElectricity, OwlHeating, OwlChannel, OwlSolar, OwlWeather, OwlHotWater
 
+
 def test_electricity():
     packet = """\
 <electricity id='443719123456' ver='2.0'>
@@ -72,7 +73,7 @@ def test_electricity():
 </electricity>
 """
 
-    msg = parse_datagram(packet)
+    msg = intuition.protocol.parse_datagram(packet)
 
     assert msg.mac == '443719123456'
     assert msg.rssi == -42

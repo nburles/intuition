@@ -5,13 +5,17 @@ python:
     - "3.4.2"
     - "3.5"
     - "3.6"
+    - "pypy"
+    - "pypy3"
 
 install:
     - pip install nose coveralls
-    # - pip install .
 
+before_script:
+    - export PYTHONPATH=$PYTHONPATH:$(pwd)
+    
 script:
-    - cd src && nosetests --with-coverage --cover-package=intuition -v
+    - nosetests --with-coverage --cover-package=intuition -v
 
 after_success:
     - coveralls
