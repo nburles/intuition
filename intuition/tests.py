@@ -20,10 +20,11 @@ along with this library.  If not, see <http://www.gnu.org/licenses/>.
 """
 from __future__ import absolute_import
 from decimal import Decimal
-from .protocol import parse_datagram, OwlElectricity, OwlHeating, OwlChannel, OwlSolar, OwlWeather, OwlHotWater
+from .protocol import parse_datagram
 
 
 def test_electricity():
+    """ Validate parsing of electricty packet """
     packet = """\
 <electricity id='443719123456' ver='2.0'>
     <timestamp>1504296371</timestamp>
@@ -73,19 +74,13 @@ def test_electricity():
 </electricity>
 """
 
-    msg = intuition.protocol.parse_datagram(packet)
+    msg = parse_datagram(packet)
 
     assert msg.mac == '443719123456'
     assert msg.rssi == -42
     assert msg.lqi == 15
     assert len(msg.channels) == 6
     assert msg.battery == 100
-    
-    for k, v in msg.channels.items():
-        assert msg.channels[k].channel_id == k
-        assert isinstance(msg.channels[k].current_w, Decimal)
-        assert isinstance(msg.channels[k].daily_wh, Decimal)
-        str(msg.channels[k])
 
     assert msg.channels['0'].current_w == Decimal('257.00')
     assert msg.channels['0'].daily_wh == Decimal('17.13')
@@ -113,21 +108,23 @@ def test_electricity():
 #     </temperature>
 # </heating>
 # """
-    
+
 #     msg = parse_datagram(packet)
-    
+
 #     assert msg.mac == '00A0C914C851'
 #     assert msg.rssi == -61
 #     assert msg.lqi == 48
 #     assert len(msg.zones) == 1
-    
+
 #     assert msg.zones['0'].zone_id == '0'
 #     assert msg.zones['0'].current_temp == Decimal('22.37')
 #     assert msg.zones['0'].required_temp == Decimal('15.00')
 #     str(msg)
 #     str(msg.zones['0'])
 
+
 def test_heating_23():
+    """ Validate parsing of heating packet """
     # from official protocol documents for owl v2.3 and above
     packet = """\
 <heating ver='2' id='00A0C914C851'>
@@ -172,7 +169,9 @@ def test_heating_23():
     assert msg.zones[1].required_temp == Decimal('15.00')
     str(msg)
 
+
 def test_hotwater_23():
+    """ Validate parsing of hot_water packet """
     packet = """\
 <hot_water ver='2' id='00A0C914C851'>
     <timestamp>1384249810</timestamp>
@@ -187,7 +186,7 @@ def test_hotwater_23():
                 <ambient>21.96</ambient>
             </temperature>
             <humidity>66.13</humidity>
-        </zone>   
+        </zone>
         <zone id='200062F' last='8'>
             <signal rssi='-45' lqi='43'/>
             <battery level='2990'/>
@@ -223,7 +222,9 @@ def test_hotwater_23():
     assert msg.zones[1].ambient_temp == Decimal('22.84')
     assert msg.zones[1].humidity == Decimal('53.45')
 
+
 def test_solar():
+    """ Validate parsing of solar packet """
     packet = """\
 <solar id='443719100B48'>
     <timestamp>1504296372</timestamp>
@@ -239,15 +240,16 @@ def test_solar():
 """
     msg = parse_datagram(packet)
     assert msg.mac == '443719100B48'
-    # TODO ADD TESTS
     assert msg.generating.current_w == Decimal('2876.00')
     assert msg.generating.daily_wh == Decimal('21715.15')
     assert msg.exporting.current_w == Decimal('333.00')
     assert msg.exporting.daily_wh == Decimal('10388.81')
     str(msg)
 
+
 def test_weather():
-    packet="""\
+    """ Validate parsing of weather packet """
+    packet = """\
 <weather id='00A0C914C851' code='113'>
     <temperature>15.00</temperature>
     <text>Clear/Sunny</text>

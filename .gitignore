@@ -1,6 +1,13 @@
-.tox
-*.egg
+# GITHUB Proposed Python stuff:
 *.py[cod]
-*~
+
+# Packages
+*.egg
+*.egg-info
+
+# Unit test / coverage reports
 .coverage
+.tox
+nosetests.xml
+htmlcov/
 coverage.xml
