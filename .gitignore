@@ -11,3 +11,9 @@
 nosetests.xml
 htmlcov/
 coverage.xml
+
+# Visual Studio Code
+.vscode
+
+# Windows Explorer
+desktop.ini
