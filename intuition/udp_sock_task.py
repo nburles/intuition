@@ -34,32 +34,22 @@ sock.setblocking(False)
 mreq = struct.pack("4sl", socket.inet_aton(MCAST_ADDR), socket.INADDR_ANY)
 sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
 
-# host = 'localhost'
-# port = 3553
 
-# sock.bind((host, port))
-
-def recvfrom(loop, sock, n_bytes, fut=None, registed=False):
-    fd = sock.fileno()
-    if fut is None:
-        fut = loop.create_future()
-    if registed:
-        loop.remove_reader(fd)
-
-    try:
-        data, addr = sock.recvfrom(n_bytes)
-    except (BlockingIOError, InterruptedError):
-        loop.add_reader(fd, recvfrom, loop, sock, n_bytes, fut, True)
-    else:
-        fut.set_result((data, addr))
-    return fut
-#  ** NOTE ** async and await keywords maybe new in Python 3.5
-async def udp_server(loop, sock):
+async def handler(conn):
     while True:
-        data, addr = await recvfrom(loop, sock, 1024)
-        print(parse_datagram(data))
+        msg = await loop.sock_recv(conn, 1024)
+        if not msg:
+            break
+        print(parse_datagram(msg))
+    conn.close()
 
-try:
-    loop.run_until_complete(udp_server(loop, sock))
-finally:
-    loop.close()
+async def monitor_handler(interval_seconds):
+    while True:
+        print("Listening...")
+        await asyncio.sleep(interval_seconds)
+
+
+loop.create_task(handler(sock))
+loop.create_task(monitor_handler(1))
+loop.run_forever()
+loop.close()
