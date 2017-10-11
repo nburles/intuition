@@ -324,12 +324,20 @@ class OwlSolar(OwlBaseMessage):
             'OwlSolar XML must have `solar` root node (got %r).'
             % datagram.tag)
         self._mac = datagram.attrib['id']
-        self.generating = OwlChannel('generating',
+        self._generating = OwlChannel('generating',
                                      datagram.current.generating.text,
                                      datagram.day.generated.text)
-        self.exporting = OwlChannel('exporting',
+        self._exporting = OwlChannel('exporting',
                                     datagram.current.exporting.text,
                                     datagram.day.exported.text)
+
+    @property
+    def generating(self):
+        return self._generating
+    
+    @property
+    def exporting(self):
+        return self._exporting
 
     def __str__(self):
         return '<OwlSolar: generating=%s, exporting=%s>' % (

@@ -1,0 +1,14 @@
+// Uses vscode-yuml extension to generate diagrams
+// https://github.com/jaime-olivares/vscode-yuml
+// {type:class}
+// {generate:true}
+[heating|id;ver]
+[heating]->[timestamp]
+[heating]->[zones]
+[zones]->[zone|id;last]
+[zone]->[signal|rssi;lqi]
+[zone]->[battery|level]
+[zone]->[conf|flags]
+[zone]->[temperature|state;flags;until;zone]
+[temperature]->[current]
+[temperature]->[required]

@@ -1,0 +1,7 @@
+// Uses vscode-yuml extension to generate diagrams
+// https://github.com/jaime-olivares/vscode-yuml
+// {type:class}
+// {generate:true}
+[weather|id;code]
+[weather]->[temperature]
+[weather]->[text]

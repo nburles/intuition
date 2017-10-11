@@ -1,0 +1,16 @@
+// Uses vscode-yuml extension to generate diagrams
+// https://github.com/jaime-olivares/vscode-yuml
+// {type:class}
+// {generate:true}
+[electricity|id;ver]
+[electricity]->[timestamp]
+[electricity]->[signal|rssi;lqi]
+[electricity]->[battery|level]
+[electricity]->[channels|chan]
+[channels]->[chan| id]
+[chan]->[curr units]
+[chan]->[day units]
+[electricity]->[property]
+[property]->[current|watts;cost]
+[property]->[day|wh;cost]
+[property]->[tariff|curr_price;block_limit;block_usage]

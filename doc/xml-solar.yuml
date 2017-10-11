@@ -1,0 +1,8 @@
+// Uses vscode-yuml extension to generate diagrams
+// https://github.com/jaime-olivares/vscode-yuml
+// {type:class}
+// {generate:true}
+[solar|id]
+[solar]->[timestamp]
+[solar]->[current_w|generating;exporting]
+[solar]->[day_wh|generated;exported]

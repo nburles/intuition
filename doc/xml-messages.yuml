@@ -1,0 +1,37 @@
+// Uses vscode-yuml extension to generate diagrams
+// https://github.com/jaime-olivares/vscode-yuml
+// {type:class}
+// {generate:true}
+
+[OwlMessage_v1|id : mac address]
+
+[OwlMessage_v1]^[solar| generate; export]
+[OwlMessage_v1]^[weather|code : weather condition code |temperature;text]
+[note: Weather is a special case {bg:cornsilk}]
+[OwlMessage_v1]^[OwlMessage_v2|ver : protovol ver.]
+
+[OwlZone|id : zone_id|signal_rssi;signal_lqi;battery_level]
+[OwlTemperature|temperature_state;temperature_current;temperature_required]
+[OwlTemperature]^[OwlHWZoneTemperature|humidity;temperature_ambient]
+
+[OwlChannel|id: channel_id;current_w;daily_wh]
+[OwlChannel]^[OwlProperty|current_price;current_cost;day_cost]
+
+[solar]export->[OwlChannel]
+[solar]-gen>[OwlChannel]
+
+[OwlMessage_v2]^[hot_water|zones]
+
+[hot_water]->[OwlZone]
+[OwlZone]->[OwlHWZoneTemperature]
+
+[OwlMessage_v2]^[heating|zones]
+
+[heating]->[OwlZone]
+[OwlZone]->[OwlTemperature]
+
+[electricity|id;ver]
+[electricity]->[OwlZone] 
+[electricity]->[channels|chan]
+[channels]->[OwlChannel]
+[electricity]->[OwlProperty]

@@ -1,0 +1,27 @@
+// Uses vscode-yuml extension to generate diagrams
+// https://github.com/jaime-olivares/vscode-yuml
+// {type:class}
+// {generate:true}
+[OwlBaseMessage|mac]
+[OwlChannel|channel_id;current_w;daily_wh;|__init()__;__str()__]
+[OwlZone|zone_id;current_temp;required_temp;battery;rssi;lqi;|__init()__;__str()__]
+[OwlHotWaterZone|ambient_temp;humidity;|__init()__;__str()__;]
+[OwlHeating|zones;|__init()__;__str()__;]
+[OwlHotWater|zones;|__init()__;__str()__;]
+[OwlElectricity|battery_pc;battery;channels;rssi;lqi;|__init()__;__str()__;]
+[OwlWeather|temperature;text;|__init()__;__str()__;]
+[OwlSolar|generating;exporting;|__init()__;__str()__;]
+[OwlIntuitionProtocol|datagramReceived;owlRecieved;|startProtocol();__init()__;]
+
+[OwlBaseMessage]^[OwlHeating]
+[OwlBaseMessage]^[OwlHotWater]
+[OwlBaseMessage]^[OwlElectricity]
+[OwlBaseMessage]^[OwlWeather]
+[OwlBaseMessage]^[OwlSolar]
+[OwlZone]^[OwlHotWaterZone]
+
+[OwlElectricity]1-*>[OwlChannel]
+[OwlSolar]exporting->[OwlChannel]
+[OwlSolar]-generating>[OwlChannel]
+[OwlHeating]->[OwlZone]
+[OwlHotWater]->[OwlHotWaterZone]
