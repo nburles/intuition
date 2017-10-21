@@ -3,7 +3,7 @@
 import asyncio
 import socket
 import struct
-from protocol import parse_datagram
+from intuition import parse_datagram
 
 MCAST_ADDR = '224.192.32.19'
 MCAST_PORT = 22600

@@ -20,7 +20,7 @@ along with this library.  If not, see <http://www.gnu.org/licenses/>.
 """
 from __future__ import absolute_import
 from decimal import Decimal
-from .protocol import parse_datagram
+from intuition import parse_datagram
 
 
 def test_electricity():

@@ -21,7 +21,7 @@ from __future__ import absolute_import
 from argparse import ArgumentParser
 from twisted.internet import reactor
 import rrdtool
-from .protocol import OwlIntuitionProtocol, MCAST_PORT, OwlElectricity
+from intuition import OwlIntuitionProtocol, MCAST_PORT, OwlElectricity
 
 
 class RrdOwlProtocol(OwlIntuitionProtocol):
