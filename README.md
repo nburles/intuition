@@ -30,7 +30,7 @@ Other packet types are unsupported and ignored, but patches to implement it are 
 
 ## Usage ##
 
-Running `intuition\__init__.py` will run the module in test mode, where it will output parsed messages to the console window
+Running `intuition\protocol.py` will run the module in test mode, where it will output parsed messages to the console window
 
 
 ### Example: rrd ###
