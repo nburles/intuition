@@ -4,9 +4,9 @@ Python asyncio library for receiving multicast UDP (local) messages from the Net
 
 This library does not interface with the Owl Intuition website, and requires that it be run on the same LAN segment as the Network Owl.
 
-Copyright 2017 Martin Rowan
-Copyright 2013-2014 Michael Farrell <micolous+git@gmail.com>
-Copyright 2013 Johan van den Dorpe <johan.vandendorpe@gmail.com>
+- Copyright 2017 Martin Rowan
+- Copyright 2013-2014 Michael Farrell <micolous+git@gmail.com>
+- Copyright 2013 Johan van den Dorpe <johan.vandendorpe@gmail.com>
 
 Licensed under the GNU LGPL3+.  For more details see `COPYING` and `COPYING.LESSER`.
 
