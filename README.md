@@ -38,4 +38,4 @@ You can use the `examples\rrd\` file to generate an rrd file to graph electricit
 
 ## Tests ##
 
-<TO DO: Add outline of running tests manually and within travis>
+TO DO: Add outline of running tests manually and within travis
