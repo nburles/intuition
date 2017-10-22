@@ -1,4 +1,6 @@
-# intuition [![Build Status](https://travis-ci.org/shortbloke/intuition.svg?branch=dev)](https://travis-ci.org/shortbloke/intuition) 
+# intuition 
+[![Build Status](https://travis-ci.org/shortbloke/intuition.svg?branch=dev)](https://travis-ci.org/shortbloke/intuition)
+[![Coverage Status](https://coveralls.io/repos/github/shortbloke/intuition/badge.svg?branch=dev)](https://coveralls.io/github/shortbloke/intuition?branch=dev)
 
 Python asyncio library for receiving multicast UDP (local) messages from the Network Owl (OWL Intution) home energy monitor.
 
