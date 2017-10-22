@@ -172,7 +172,7 @@ class OwlHeating(OwlBaseMessage):
         self._mac = datagram.get('id')
         self._zones = []
 
-        for zone in datagram.findall('./zones/zone'):     
+        for zone in datagram.findall('./zones/zone'):
             zone_id = zone.get('id')
             rssi = Decimal(zone.find('signal').attrib['rssi'])
             lqi = Decimal(zone.find('signal').attrib['lqi'])
@@ -203,7 +203,7 @@ class OwlHotWater(OwlBaseMessage):
             'Incorrect OwlHotWater protcol version')
         self._mac = datagram.get('id')
         self._zones = []
-        for zone in datagram.findall('./zones/zone'):     
+        for zone in datagram.findall('./zones/zone'):
             zone_id = zone.get('id')
             rssi = Decimal(zone.find('signal').attrib['rssi'])
             lqi = Decimal(zone.find('signal').attrib['lqi'])
@@ -237,11 +237,12 @@ class OwlElectricity(OwlBaseMessage):
         self._lqi = Decimal(datagram.find('./signal').attrib['lqi'])
 
         # read battery information from the sensor.
-        self._battery_pc = Decimal(datagram.find('./battery').attrib['level'][:-1])
+        self._battery_pc = \
+            Decimal(datagram.find('./battery').attrib['level'][:-1])
 
         # read sensors (channels)
         self._channels = {}
-        for channel in datagram.findall('./channels/chan'):       
+        for channel in datagram.findall('./channels/chan'):
             assert channel.get('id') not in self._channels, (
                 'Channel duplicate')
 
@@ -325,17 +326,19 @@ class OwlSolar(OwlBaseMessage):
             'OwlSolar XML must have `solar` root node (got %r).'
             % datagram.tag)
         self._mac = datagram.get('id')
-        self._generating = OwlChannel('generating',
-                                     datagram.find('./current/generating').text,
-                                     datagram.find('./day/generated').text)
-        self._exporting = OwlChannel('exporting',
-                                    datagram.find('./current/exporting').text,
-                                    datagram.find('./day/exported').text)
+        self._generating = \
+            OwlChannel('generating',
+                       datagram.find('./current/generating').text,
+                       datagram.find('./day/generated').text)
+        self._exporting = \
+            OwlChannel('exporting',
+                       datagram.find('./current/exporting').text,
+                       datagram.find('./day/exported').text)
 
     @property
     def generating(self):
         return self._generating
-    
+
     @property
     def exporting(self):
         return self._exporting
