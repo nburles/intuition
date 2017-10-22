@@ -21,14 +21,14 @@ You should have received a copy of the GNU Lesser General Public License
 along with this library.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-
-# pylint: disable=R0903
-
-from warnings import warn
+from argparse import ArgumentParser
+import asyncio
 from decimal import Decimal
-from twisted.internet.protocol import DatagramProtocol
-from lxml import objectify
-
+from struct import pack
+import socket
+import logging
+from warnings import warn
+import xml.etree.ElementTree as ET
 
 MCAST_ADDR = '224.192.32.19'
 MCAST_PORT = 22600
@@ -169,15 +169,16 @@ class OwlHeating(OwlBaseMessage):
             % datagram.tag)
         assert (datagram.attrib['ver'] == '2'), (
             'Incorrect OwlHeating protcol version')
-        self._mac = datagram.attrib['id']
+        self._mac = datagram.get('id')
         self._zones = []
-        for zone in datagram.zones.getchildren():
-            zone_id = zone.attrib['id']
-            rssi = zone.signal.attrib['rssi']
-            lqi = zone.signal.attrib['lqi']
-            battery = zone.battery.attrib['level']
-            current_temp = zone.temperature.current.text
-            required_temp = zone.temperature.required.text
+
+        for zone in datagram.findall('./zones/zone'):     
+            zone_id = zone.get('id')
+            rssi = Decimal(zone.find('signal').attrib['rssi'])
+            lqi = Decimal(zone.find('signal').attrib['lqi'])
+            battery = Decimal(zone.find('battery').attrib['level'])
+            current_temp = Decimal(zone.find('temperature/current').text)
+            required_temp = Decimal(zone.find('temperature/required').text)
             self._zones.append(OwlZone(zone_id, rssi, lqi, battery,
                                        current_temp, required_temp))
 
@@ -200,17 +201,17 @@ class OwlHotWater(OwlBaseMessage):
             % datagram.tag)
         assert (datagram.attrib['ver'] == '2'), (
             'Incorrect OwlHotWater protcol version')
-        self._mac = datagram.attrib['id']
+        self._mac = datagram.get('id')
         self._zones = []
-        for zone in datagram.zones.getchildren():
-            zone_id = zone.attrib['id']
-            rssi = zone.signal.attrib['rssi']
-            lqi = zone.signal.attrib['lqi']
-            battery = zone.battery.attrib['level']
-            current_temp = zone.temperature.current.text
-            required_temp = zone.temperature.required.text
-            ambient_temp = zone.temperature.ambient.text
-            humidity = zone.humidity.text
+        for zone in datagram.findall('./zones/zone'):     
+            zone_id = zone.get('id')
+            rssi = Decimal(zone.find('signal').attrib['rssi'])
+            lqi = Decimal(zone.find('signal').attrib['lqi'])
+            battery = Decimal(zone.find('battery').attrib['level'])
+            current_temp = Decimal(zone.find('temperature/current').text)
+            required_temp = Decimal(zone.find('temperature/required').text)
+            ambient_temp = Decimal(zone.find('temperature/ambient').text)
+            humidity = Decimal(zone.find('humidity').text)
             self._zones.append(OwlHotWaterZone(zone_id, rssi, lqi, battery,
                                                current_temp, required_temp,
                                                ambient_temp, humidity))
@@ -229,31 +230,30 @@ class OwlElectricity(OwlBaseMessage):
         assert (datagram.tag == 'electricity'), (
             'OwlElectricity XML must have `electricity` root node (got %r).'
             % datagram.tag)
-
-        self._mac = datagram.attrib['id']
+        self._mac = datagram.get('id')
 
         # read signal information for the sensor's 433MHz link
-        self._rssi = Decimal(datagram.signal[0].attrib['rssi'])
-        self._lqi = Decimal(datagram.signal[0].attrib['lqi'])
+        self._rssi = Decimal(datagram.find('./signal').attrib['rssi'])
+        self._lqi = Decimal(datagram.find('./signal').attrib['lqi'])
 
         # read battery information from the sensor.
-        self._battery_pc = Decimal(datagram.battery[0].attrib['level'][:-1])
+        self._battery_pc = Decimal(datagram.find('./battery').attrib['level'][:-1])
 
         # read sensors (channels)
         self._channels = {}
-        for channel in datagram.channels.chan:
-            assert channel.attrib['id'] not in self._channels, (
+        for channel in datagram.findall('./channels/chan'):       
+            assert channel.get('id') not in self._channels, (
                 'Channel duplicate')
 
-            assert channel.curr[0].attrib['units'] == 'w', (
+            assert channel.find('./curr').attrib['units'] == 'w', (
                 'Current units must be watts')
-            assert channel.day[0].attrib['units'] == 'wh', (
+            assert channel.find('./day').attrib['units'] == 'wh', (
                 'Daily usage must be watthours')
 
             # we're good and done our tests, create a channel
-            self._channels[channel.attrib['id']] = \
-                OwlChannel(channel.attrib['id'], channel.curr[0].text,
-                           channel.day[0].text)
+            self._channels[channel.get('id')] = \
+                OwlChannel(channel.get('id'), channel.find('./curr').text,
+                           channel.find('./day').text)
 
     @property
     def battery_pc(self):
@@ -300,8 +300,8 @@ class OwlWeather(OwlBaseMessage):
         assert (datagram.tag == 'weather'), (
             'OwlWeather XML must have `weather` root node (got %r).'
             % datagram.tag)
-        self._mac = datagram.attrib['id']
-        self._temperature = Decimal(datagram.temperature.text)
+        self._mac = datagram.get('id')
+        self._temperature = Decimal(datagram.find('temperature').text)
         self._text = datagram.find('text').text
 
     @property
@@ -324,13 +324,13 @@ class OwlSolar(OwlBaseMessage):
         assert (datagram.tag == 'solar'), (
             'OwlSolar XML must have `solar` root node (got %r).'
             % datagram.tag)
-        self._mac = datagram.attrib['id']
+        self._mac = datagram.get('id')
         self._generating = OwlChannel('generating',
-                                     datagram.current.generating.text,
-                                     datagram.day.generated.text)
+                                     datagram.find('./current/generating').text,
+                                     datagram.find('./day/generated').text)
         self._exporting = OwlChannel('exporting',
-                                    datagram.current.exporting.text,
-                                    datagram.day.exported.text)
+                                    datagram.find('./current/exporting').text,
+                                    datagram.find('./day/exported').text)
 
     @property
     def generating(self):
@@ -351,7 +351,7 @@ def parse_datagram(datagram):
     """
     Parses a Network Owl datagram.
     """
-    xml = objectify.fromstring(datagram)
+    xml = ET.fromstring(datagram)
     if xml.tag == 'electricity':
         msg = OwlElectricity(xml)
     elif xml.tag == 'heating':
@@ -378,23 +378,12 @@ def parse_datagram(datagram):
     return msg
 
 
-class OwlIntuitionProtocol(DatagramProtocol):
-    def __init__(self, iface=''):
-        """
-        Protocol for Owl Intution (Network Owl) multicast UDP.
-        :param iface: Name of the interface to use to communicate with the
-                      Network Owl. If not specified, uses the default
-                      network connection on the cost.
-        :type iface: str
-        """
-        self.iface = iface
+class OwlIntuitionProtocol:
+    def connection_made(self, transport):
+        self.transport = transport
 
-    def startProtocol(self):
-        self.transport.joinGroup(MCAST_ADDR, self.iface)
-
-    # pylint: disable=arguments-differ
-    def datagramReceived(self, datagram, address):
-        msg = parse_datagram(datagram)
+    def datagram_received(self, data, address):
+        msg = parse_datagram(data)
         self.owlReceived(address, msg)
 
     # pylint: disable=invalid-name, no-self-use
@@ -405,18 +394,36 @@ class OwlIntuitionProtocol(DatagramProtocol):
 
 if __name__ == '__main__':  # pragma: no cover
     # Simple test program!
-    # pylint: disable=ungrouped-imports
-    from twisted.internet import reactor
-    from argparse import ArgumentParser
-    # pylint: disable=invalid-name
     parser = ArgumentParser()
     parser.add_argument('-i', '--iface',
                         dest='iface', default='',
                         help='Network interface to use for getting data.')
 
-    # pylint: disable=invalid-name
     options = parser.parse_args()
-    # pylint: disable=invalid-name
-    protocol = OwlIntuitionProtocol(iface=options.iface)
-    reactor.listenMulticast(MCAST_PORT, protocol, listenMultiple=True)
-    reactor.run()
+
+    loop = asyncio.get_event_loop()
+    loop.set_debug(True)
+    logging.basicConfig(level=logging.DEBUG)
+
+    # Create socket listener:
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    # I think this is where we can use iface
+    sock.bind((options.iface, MCAST_PORT))
+    sock.setblocking(False)
+    mreq = pack("4sl", socket.inet_aton(MCAST_ADDR), socket.INADDR_ANY)
+    sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
+
+    listen = loop.create_datagram_endpoint(
+        OwlIntuitionProtocol,
+        sock=sock,
+    )
+    transport, protocol = loop.run_until_complete(listen)
+
+    try:
+        loop.run_forever()
+    except KeyboardInterrupt:
+        pass
+
+    transport.close()
+    loop.close()

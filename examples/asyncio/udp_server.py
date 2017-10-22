@@ -1,4 +1,4 @@
-# Based on: UDP server exanople from:
+# Based on: UDP server example from:
 # https://www.pythonsheets.com/notes/python-asyncio.html 
 import asyncio
 import socket

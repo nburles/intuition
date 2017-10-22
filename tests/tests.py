@@ -156,15 +156,15 @@ def test_heating_23():
     assert msg.mac == '00A0C914C851'
     assert len(msg.zones) == 2
     assert msg.zones[0].zone_id == '200027F'
-    assert msg.zones[0].rssi == '-87'
-    assert msg.zones[0].lqi == '48'
-    assert msg.zones[0].battery == '2240'
+    assert msg.zones[0].rssi == -87
+    assert msg.zones[0].lqi == 48
+    assert msg.zones[0].battery == 2240
     assert msg.zones[0].current_temp == Decimal('21.30')
     assert msg.zones[0].required_temp == Decimal('15.00')
     assert msg.zones[1].zone_id == '2000014'
-    assert msg.zones[1].rssi == '-58'
-    assert msg.zones[1].lqi == '48'
-    assert msg.zones[1].battery == '2960'
+    assert msg.zones[1].rssi == -58
+    assert msg.zones[1].lqi == 48
+    assert msg.zones[1].battery == 2960
     assert msg.zones[1].current_temp == Decimal('21.87')
     assert msg.zones[1].required_temp == Decimal('15.00')
     str(msg)
@@ -206,17 +206,17 @@ def test_hotwater_23():
     assert msg.mac == '00A0C914C851'
     assert len(msg.zones) == 2
     assert msg.zones[0].zone_id == '200062E'
-    assert msg.zones[0].rssi == '-41'
-    assert msg.zones[0].lqi == '48'
-    assert msg.zones[0].battery == '2990'
+    assert msg.zones[0].rssi == -41
+    assert msg.zones[0].lqi == 48
+    assert msg.zones[0].battery == 2990
     assert msg.zones[0].current_temp == Decimal('21.00')
     assert msg.zones[0].required_temp == Decimal('45.00')
     assert msg.zones[0].ambient_temp == Decimal('21.96')
     assert msg.zones[0].humidity == Decimal('66.13')
     assert msg.zones[1].zone_id == '200062F'
-    assert msg.zones[1].rssi == '-45'
-    assert msg.zones[1].lqi == '43'
-    assert msg.zones[1].battery == '2990'
+    assert msg.zones[1].rssi == -45
+    assert msg.zones[1].lqi == 43
+    assert msg.zones[1].battery == 2990
     assert msg.zones[1].current_temp == Decimal('20.50')
     assert msg.zones[1].required_temp == Decimal('50.00')
     assert msg.zones[1].ambient_temp == Decimal('22.84')
