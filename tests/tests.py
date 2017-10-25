@@ -20,7 +20,7 @@ along with this library.  If not, see <http://www.gnu.org/licenses/>.
 """
 from __future__ import absolute_import
 from decimal import Decimal
-from intuition import parse_datagram
+from intuition import parse_datagram, parse_args, start_listening
 
 
 def test_electricity():
@@ -260,3 +260,16 @@ def test_weather():
     assert msg.temperature == Decimal('15.00')
     assert msg.text == 'Clear/Sunny'
     str(msg)
+
+
+def test_start_listening():
+    """ Validate Listening to Multicast Packets """
+    start_listening(debug=True)  # Doesn't validate that it can receive packets yet
+
+
+def test_parse_args():
+    """ Validate command line paramters """
+    options = parse_args(['-i', 'eth3'])
+    assert options.iface == 'eth3'
+    options = parse_args(['--iface', 'eth4'])
+    assert options.iface == 'eth4'

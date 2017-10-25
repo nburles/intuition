@@ -29,6 +29,7 @@ import socket
 import logging
 from warnings import warn
 import xml.etree.ElementTree as ET
+import sys
 
 MCAST_ADDR = '224.192.32.19'
 MCAST_PORT = 22600
@@ -394,16 +395,15 @@ class OwlIntuitionProtocol:
         # for the test program
         print('%s: %s' % (address, msg))
 
-
-if __name__ == '__main__':  # pragma: no cover
-    # Simple test program!
+def parse_args(args):
     parser = ArgumentParser()
     parser.add_argument('-i', '--iface',
                         dest='iface', default='',
                         help='Network interface to use for getting data.')
+    options = parser.parse_args(args)
+    return options
 
-    options = parser.parse_args()
-
+def start_listening(iface='', debug=False):
     loop = asyncio.get_event_loop()
     loop.set_debug(True)
     logging.basicConfig(level=logging.DEBUG)
@@ -412,7 +412,7 @@ if __name__ == '__main__':  # pragma: no cover
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     # I think this is where we can use iface
-    sock.bind((options.iface, MCAST_PORT))
+    sock.bind((iface, MCAST_PORT))
     sock.setblocking(False)
     mreq = pack("4sl", socket.inet_aton(MCAST_ADDR), socket.INADDR_ANY)
     sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
@@ -424,9 +424,18 @@ if __name__ == '__main__':  # pragma: no cover
     transport, protocol = loop.run_until_complete(listen)
 
     try:
-        loop.run_forever()
+        if not debug:
+            loop.run_forever()
     except KeyboardInterrupt:
         pass
 
     transport.close()
     loop.close()
+
+def main(args):
+    options = parse_args(args)
+    start_listening(options.iface)
+
+if __name__ == '__main__':  # pragma: no cover
+    # Simple test program!
+    sys.exit(main(sys.argv[1:]))
