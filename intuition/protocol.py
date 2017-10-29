@@ -405,7 +405,7 @@ def parse_args(args):
 
 def start_listening(iface='', debug=False):
     loop = asyncio.get_event_loop()
-    loop.set_debug(True)
+    loop.set_debug(debug)
     logging.basicConfig(level=logging.DEBUG)
 
     # Create socket listener:
