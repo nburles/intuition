@@ -1,9 +1,7 @@
 """
-Python asyncio library for OWL Intuition's multicast UDP energy
-monitoring protocol.
+Python asyncio library for OWL Intuition's UDP energy monitoring protocol.
 
-
-Copyright 2017 Martin Rowan
+Copyright 2017 Martin Rowan <martin+github@rowannet.co.uk>
 Copyright 2013-2014 Michael Farrell <micolous+git@gmail.com>
 Copyright 2013 Johan van den Dorpe <johan.vandendorpe@gmail.com>
 
@@ -33,6 +31,8 @@ import sys
 
 MCAST_ADDR = '224.192.32.19'
 MCAST_PORT = 22600
+
+UDP_PORT = 32000
 
 
 # pylint: disable=no-member
@@ -400,10 +400,16 @@ def parse_args(args):
     parser.add_argument('-i', '--iface',
                         dest='iface', default='',
                         help='Network interface to use for getting data.')
+    parser.add_argument('-u', '--udp',
+                        action='store_true',
+                        help='Listen for Directed UDP Messages')
+    parser.add_argument('-p', '--port',
+                        dest='udp_port', default=32000,
+                        help='Listening Port for Directed UDP Messages. (Default 32000)')                    
     options = parser.parse_args(args)
     return options
 
-def start_listening(iface='', debug=False):
+def start_listening(iface='', udp=False, udp_port=32000,debug=False):
     loop = asyncio.get_event_loop()
     loop.set_debug(debug)
     logging.basicConfig(level=logging.DEBUG)
@@ -412,11 +418,16 @@ def start_listening(iface='', debug=False):
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     # I think this is where we can use iface
-    sock.bind((iface, MCAST_PORT))
+    if udp:
+        print("DEBUG: UDP on Port: ",  udp_port)
+        sock.bind((iface, udp_port))
+    else:
+        sock.bind((iface, MCAST_PORT))
+        mreq = pack("4sl", socket.inet_aton(MCAST_ADDR), socket.INADDR_ANY)
+        sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
+    
     sock.setblocking(False)
-    mreq = pack("4sl", socket.inet_aton(MCAST_ADDR), socket.INADDR_ANY)
-    sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
-
+    
     listen = loop.create_datagram_endpoint(
         OwlIntuitionProtocol,
         sock=sock,
@@ -434,7 +445,7 @@ def start_listening(iface='', debug=False):
 
 def main(args):
     options = parse_args(args)
-    start_listening(options.iface)
+    start_listening(options.iface, options.udp, int(options.udp_port))
 
 if __name__ == '__main__':  # pragma: no cover
     # Simple test program!

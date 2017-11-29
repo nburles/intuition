@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 """
-intuition/tests.py - Tests for Network Owl protocol parser
-Copyright 2017 Martin Rowan
+tests.py - Tests for Network Owl protocol parser
+
+Copyright 2017 Martin Rowan <martin+github@rowannet.co.uk>
 Copyright 2013-2014 Michael Farrell <micolous+git@gmail.com>
 
 This library is free software: you can redistribute it and/or modify
