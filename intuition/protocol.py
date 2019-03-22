@@ -294,7 +294,7 @@ class OwlElectricity(OwlBaseMessage):
     def __str__(self):
         return '<OwlElectricity: rssi=%s, lqi=%s, battery=%s%%, channels=%s>' \
             % (self.rssi, self.lqi, self.battery_pc,
-               ', '.join((str(x) for x in self.channels.items())))
+               ', '.join((('(%s: %s)' % (k, str(v))) for k, v in self.channels.items())))
 
 
 class OwlWeather(OwlBaseMessage):
