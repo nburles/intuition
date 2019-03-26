@@ -1,1 +1,5 @@
 output
+backup
+sftp.py
+*_id
+*_id.pub
