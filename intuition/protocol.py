@@ -351,11 +351,10 @@ class OwlSolar(OwlBaseMessage):
         )
 
 
-def parse_datagram(datagram):
+def parse_datagram(xml):
     """
     Parses a Network Owl datagram.
     """
-    xml = ET.fromstring(datagram)
     if xml.tag == 'electricity':
         msg = OwlElectricity(xml)
     elif xml.tag == 'heating':
